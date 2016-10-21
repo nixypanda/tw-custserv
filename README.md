@@ -10,11 +10,12 @@ Tweets that:
 ## Using the application
 - First, you must obtain consumer key and secret from [Twitter Application Management](https://apps.twitter.com/) page,
 and you have to set those values to the config json:
-- create an application (fill in dummy data to the provided form)
+- Create an application (fill in dummy data to the provided form)
 - Now you must prepare OAuth access token and secret
 - Under **Key and Access Tokens** tab. You will have *Application Setting* and *Your access token*
   generete them
-- Put all this information in a `config.json` file.
+- Create a `config.json` file with the above details (sample given below).
+
   ```json
   {
     "apiKey": "<Consumer Key (API Key) in Application Setting>",
@@ -23,8 +24,8 @@ and you have to set those values to the config json:
     "accessTokenSecret": "<Access Token Secret in Your Access Token>"
   }
   ```
-- run `stack bulid`
-- run `stack exec tw-custserv-exe`
+- Run `stack build` (you may need to run `stack setup` as well)
+- Run `stack exec tw-custserv-exe`
 
 
 ## About the code
@@ -41,6 +42,6 @@ and you have to set those values to the config json:
 ## Image
 ![App in action](https://raw.githubusercontent.com/jckdrpr/tw-custserv/master/resources/tw-custserv-exe.png)
 
-## Issues
+## Imprvement
 - User should be able to login with their credentials and not have to setup the config.json
 
