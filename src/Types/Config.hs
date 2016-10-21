@@ -7,9 +7,6 @@ module Types.Config
 
 
 import Data.Aeson
-  ( FromJSON
-  , ToJSON
-  )
 import GHC.Generics (Generic)
 
 {-
@@ -30,6 +27,4 @@ data Config = Config
  - encoding an instance of our Config type
  -}
 instance FromJSON Config
-
-instance ToJSON Config
 

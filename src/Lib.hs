@@ -7,10 +7,19 @@ module Lib
 
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
+import Network.HTTP.Types
+  ( Status(..)
+  , status200
+  )
 
+-- Qualified imports
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString.Char8 as BC
+
+
 
 import Types.Config
+import Types.Query
 import TwitterAuth
 
 
@@ -33,6 +42,23 @@ tweetsContaining config query = do
   httpLbs req manager
 
 
+{-
+ - Get and display the tweets until the user presses the `j` key.
+ -}
+getTweets :: Config -> String -> IO ()
+getTweets config query = do
+  response <- tweetsContaining config query
+  let status = responseStatus response
+  print status
+
+  if status == status200
+    then
+      print $ responseBody response
+    else
+      BC.putStrLn $ statusMessage status
+
+
+
 startApp :: IO ()
 startApp = do
   file <- configFromFile "config.json"
@@ -42,7 +68,6 @@ startApp = do
       putStrLn errMsg
       putStr configErrMsg
 
-    Right config -> do
-      res <- tweetsContaining config ""
-      print res
+    Right config ->
+      getTweets config (show $ Query "custserv" 0)
 
