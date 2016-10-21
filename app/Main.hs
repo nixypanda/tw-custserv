@@ -1,7 +1,11 @@
 module Main where
 
-import Lib
+import TwitterCustServ
 
+{-
+ - All this does is call the start app function in Lib.
+ -}
 main :: IO ()
 main =
-  startApp
+  startApp "config.json" "custserv" 1
+

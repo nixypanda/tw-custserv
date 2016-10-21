@@ -8,6 +8,7 @@ module TwitterAuth
   , signWithConfig
   ) where
 
+
 import Data.Aeson (eitherDecode)
 import Data.ByteString (ByteString)
 import Network.HTTP.Client
