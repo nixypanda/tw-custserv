@@ -4,7 +4,6 @@
 module TwitterAuth
   ( configErrMsg
   , configFromFile
-  , defaultConfig
   , signWithConfig
   ) where
 
@@ -43,18 +42,6 @@ type ConsumerKey =
  -}
 type SecretKey =
   ByteString
-
-
-{-
- - A default configuration object which will basically lead to a failure in authentication.
- -}
-defaultConfig :: Config
-defaultConfig = Config
-  { apiKey = ""
-  , apiSecret = ""
-  , accessToken = ""
-  , accessTokenSecret = ""
-  }
 
 
 {-
@@ -102,7 +89,7 @@ signWithConfig Config{..} =
 
 
 {-
- - Helpful error message in case authentication fails
+ - Helpful error message in case the provided config.json is invalid.
  -}
 configErrMsg :: String
 configErrMsg =

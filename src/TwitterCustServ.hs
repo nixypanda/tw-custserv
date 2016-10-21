@@ -31,8 +31,9 @@ searchTweetsUrl :: String
 searchTweetsUrl =
   "https://api.twitter.com/1.1/search/tweets.json"
 
+
 {-
- - Decodes a given response object.
+ - Decodes a given response object into a SearchResponse.
  -}
 decodeTwRes :: Response BL.ByteString -> Either String SearchResponse
 decodeTwRes =
@@ -40,7 +41,7 @@ decodeTwRes =
 
 
 {-
- - Converts a given Tweet data type to a pretty string.
+ - Converts a given Tweet data type to a pretty string :D.
  -}
 prettyTweet :: Tweet -> String
 prettyTweet Tweet{..} =
@@ -55,7 +56,7 @@ prettyTweet Tweet{..} =
 
 
 {-
- - Preetfies a list of tweets.
+ - Preetfies a list of tweets :P. Atleast I find it pretty.
  -}
 prettyTweets :: SearchResponse -> String
 prettyTweets =
@@ -63,25 +64,37 @@ prettyTweets =
 
 
 {-
- - Fetch tweets with the given hash code and with the given configuration object.
+ - Fetch tweets with the given query-string and with the given configuration object.
  -}
-tweetsContaining :: Config -> String -> IO (Response BL.ByteString)
-tweetsContaining config query = do
+-- parse the url
+-- create a request object
+-- perform the request and get the response
+tweetsContaining :: Manager -> Config -> String -> IO (Response BL.ByteString)
+tweetsContaining manager config query = do
   url <- parseUrlThrow $ searchTweetsUrl ++ query
   req <- signWithConfig config url { method = "GET" }
-  manager <- newManager tlsManagerSettings
   httpLbs req manager
 
 
 {-
  - Get and display the tweets until the user presses the `j` key.
  -}
-getTweets :: Config -> String -> IO ()
-getTweets config query = do
-  response <- tweetsContaining config query
+-- Continue to loop over and over again till users presses `j`.
+-- <troll>Why `j` you ask? Bro do you even vim.</troll>
+-- get response form twitter
+-- if the response status is not 200 OK then error out.
+-- else decode the response
+-- Depending on the success/failure of the decoding of the response error out or
+-- print the tweets.
+-- then wait for user input again.
+getTweets :: Manager -> Config -> String -> IO ()
+getTweets manager config query = do
+  response <- tweetsContaining manager config query
 
-  if responseStatus response == status200
+  if responseStatus response /= status200
     then
+      BC.putStrLn . statusMessage $ responseStatus response
+    else
       case decodeTwRes response of
         Left errMsg ->
           putStrLn errMsg
@@ -90,17 +103,13 @@ getTweets config query = do
           putStrLn $ prettyTweets twResponse
 
           case next $ meta twResponse of
-            Nothing -> do
+            Nothing ->
               putStrLn "THATS ALL FOLKS"
-              return ()
 
             Just newUrl -> do
               putStrLn "j: More, <anything_else>: Exit"
               action <- getLine
-              when (action == "j") $ getTweets config newUrl
-
-    else
-      BC.putStrLn . statusMessage $ responseStatus response
+              when (action == "j") $ getTweets manager config newUrl
 
 
 {-
@@ -109,6 +118,10 @@ getTweets config query = do
  - * The hashtag to be searched for
  - * The number of minimum retweets it should have
  -}
+-- read the config file
+-- if read fails the print the error.
+-- otherwise create a new manager which keeps track of open-connections with default
+-- Trasport Layer Security settings and continue to get tweets.
 startApp :: String -> String -> Int -> IO ()
 startApp fname hashtag minimumRetweets = do
   file <- configFromFile fname
@@ -118,6 +131,7 @@ startApp fname hashtag minimumRetweets = do
       putStrLn errMsg
       putStr configErrMsg
 
-    Right config ->
-      getTweets config (show $ Query hashtag minimumRetweets)
+    Right config -> do
+      manager <- newManager tlsManagerSettings
+      getTweets manager config (show $ Query hashtag minimumRetweets)
 
